@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNull } from "drizzle-orm";
 import {
   getDb,
   offerEvents,
@@ -25,12 +25,13 @@ export async function revalidatePublishedOffers(options: {
   const db = await getDb();
   const now = options.now ?? new Date();
   const since = new Date(now.getTime() - 48 * 60 * 60 * 1000);
-  const limit = options.limit ?? 20;
+  const limit = options.limit ?? 100;
 
   const rows = await db
     .select()
     .from(offers)
     .where(and(eq(offers.status, "published"), gte(offers.expiresAt, now)))
+    .orderBy(asc(offers.publishedAt))
     .limit(limit);
 
   let checked = 0;
@@ -40,9 +41,13 @@ export async function revalidatePublishedOffers(options: {
   for (const offer of rows) {
     const conditions = [
       eq(priceSnapshots.routeId, offer.routeId),
+      eq(priceSnapshots.source, offer.source),
       eq(priceSnapshots.departureDate, offer.departureDate),
       gte(priceSnapshots.observedAt, since),
     ];
+    if (offer.carrier) {
+      conditions.push(eq(priceSnapshots.carrier, offer.carrier));
+    }
     if (offer.returnDate) {
       conditions.push(eq(priceSnapshots.returnDate, offer.returnDate));
     } else {

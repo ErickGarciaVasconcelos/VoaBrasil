@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, sql } from "drizzle-orm";
 import {
   collectorRuns,
   getDb,
@@ -31,6 +31,7 @@ export type CollectResult = {
   requests: number;
   snapshots: number;
   errors: number;
+  quotaExceeded: boolean;
   messages: string[];
   durationMs: number;
 };
@@ -136,6 +137,7 @@ export async function collectPrices(
   let requests = 0;
   let errors = 0;
   let snapshotCount = 0;
+  let quotaExceeded = false;
   const messages: string[] = [];
 
   try {
@@ -157,8 +159,42 @@ export async function collectPrices(
       routeRows = routeRows.slice(0, options.limit);
     }
 
-    for (const route of routeRows) {
+    const todayStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
+    const [usage] = await db
+      .select({
+        used: sql<number>`coalesce(sum(${collectorRuns.requests}), 0)`,
+      })
+      .from(collectorRuns)
+      .where(
+        and(
+          eq(collectorRuns.source, source.id),
+          gte(collectorRuns.startedAt, todayStart),
+        ),
+      );
+    const configuredQuota = Number(process.env.DAILY_REQUEST_QUOTA);
+    const dailyBudget = Math.max(
+      1,
+      Math.min(
+        source.dailyQuota,
+        Number.isFinite(configuredQuota) && configuredQuota > 0
+          ? Math.trunc(configuredQuota)
+          : source.dailyQuota,
+      ),
+    );
+    let available = Math.max(0, dailyBudget - Number(usage?.used ?? 0));
+
+    collectRoutes: for (const route of routeRows) {
       for (const window of windows) {
+        if (available <= 0) {
+          quotaExceeded = true;
+          messages.push(
+            `Cota diária de ${dailyBudget} requisições atingida para ${source.id}.`,
+          );
+          break collectRoutes;
+        }
+        available -= 1;
         requests += 1;
         try {
           const results = await source.search({
@@ -229,6 +265,7 @@ export async function collectPrices(
       requests,
       snapshots: snapshotCount,
       errors,
+      quotaExceeded,
       messages,
       durationMs: Date.now() - startedAt,
     };

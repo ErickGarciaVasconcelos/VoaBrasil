@@ -109,6 +109,7 @@ Todas estão documentadas em `.env.example`. As principais:
 | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHANNEL_ID` | — | sem ambos, não há broadcast |
 | `ALLOWED_AFFILIATE_HOSTS` | hosts padrão | allowlist dos destinos aceitos em `/go/:id` |
 | `ALLOW_PGLITE_IN_PRODUCTION` | — | `1` libera PGlite só para teste local em modo produção |
+| `DAILY_REQUEST_QUOTA` | cota da fonte | teto diário de requisições da coleta |
 
 ## Como a detecção funciona
 
