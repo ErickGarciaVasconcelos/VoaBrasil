@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { DemoNotice } from "@/components/demo-notice";
 import {
   ArrowRightIcon,
   BellIcon,
@@ -20,8 +21,8 @@ export const metadata: Metadata = {
 const steps = [
   {
     icon: PlaneIcon,
-    title: "Coletamos tarifas reais",
-    text: "Consultamos APIs de parceiros várias vezes ao dia para as rotas monitoradas. Nada de scraping ou preço inventado.",
+    title: "Coletamos tarifas de parceiros",
+    text: "Consultamos APIs de afiliados várias vezes ao dia para as rotas monitoradas. Sem scraping: cada tarifa vem de uma fonte declarada e rastreável.",
   },
   {
     icon: TrendingDownIcon,
@@ -77,6 +78,7 @@ export default function HowItWorksPage() {
           com o que a própria rota costuma custar — e só publica quando o
           desconto é estatisticamente relevante.
         </p>
+        <DemoNotice className="mt-6" />
       </div>
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2">

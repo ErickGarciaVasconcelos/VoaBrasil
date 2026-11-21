@@ -11,6 +11,7 @@ export const site = {
     process.env.TELEGRAM_PUBLIC_URL?.trim() || "https://t.me/voaleve",
   contactEmail:
     process.env.CONTACT_EMAIL?.trim() || "contato@voaleve.com.br",
+  lastUpdated: "21 de novembro de 2026",
 };
 
 export const affiliateDisclosure =

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { affiliateDisclosure, site } from "@/lib/site";
-import { PlaneIcon } from "./icons";
+import { Brand } from "./brand";
 
 const explore = [
   { href: "/ofertas", label: "Ofertas" },
@@ -21,14 +21,7 @@ export function SiteFooter() {
       <div className="container-page py-14">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
-            <Link href="/" className="flex items-center gap-2.5">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-ink text-paper">
-                <PlaneIcon className="h-5 w-5 -rotate-12" />
-              </span>
-              <span className="font-display text-xl font-bold tracking-tight">
-                voa leve<span className="text-coral">.</span>
-              </span>
-            </Link>
+            <Brand />
             <p className="mt-4 max-w-sm text-sm leading-6 text-muted">
               Passagens baratas encontradas por dados, não por achismo. Comparamos
               cada preço com o histórico da rota e mostramos só o que vale a pena.

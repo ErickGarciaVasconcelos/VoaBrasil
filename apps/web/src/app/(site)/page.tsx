@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AIRPORTS } from "@ppa/db";
 import { AlertForm } from "@/components/alert-form";
+import { DemoNotice } from "@/components/demo-notice";
 import { EmptyState } from "@/components/empty-state";
 import { HeroTicket } from "@/components/hero-ticket";
 import {
@@ -150,8 +151,8 @@ export default async function HomePage() {
               .
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-ink-soft">
-              A gente compara cada tarifa com o histórico real da rota. Se não
-              for realmente barato, não entra. Simples assim.
+              A gente compara cada tarifa com o histórico da rota. Se não for
+              realmente barato, não entra. Simples assim.
             </p>
 
             <div className="mt-7 max-w-2xl">
@@ -169,7 +170,7 @@ export default async function HomePage() {
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <CheckIcon className="h-4 w-4 text-teal" />
-                Link direto para a companhia
+                Compra no site do parceiro
               </span>
             </div>
           </div>
@@ -179,6 +180,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <DemoNotice className="container-page mt-6" />
 
       {!dbReady && process.env.NODE_ENV !== "production" ? (
         <div className="container-page">

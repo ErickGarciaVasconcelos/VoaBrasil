@@ -18,7 +18,7 @@ export default function AffiliatePage() {
           Divulgação de afiliado
         </h1>
         <p className="mt-3 text-xs text-muted">
-          Última atualização: 21 de novembro de 2026.
+          Última atualização: {site.lastUpdated}.
         </p>
 
         <div className="mt-6 rounded-2xl border border-teal/20 bg-teal-soft/60 p-5 text-sm leading-6 text-ink-soft">

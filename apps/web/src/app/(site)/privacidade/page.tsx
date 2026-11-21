@@ -18,7 +18,7 @@ export default function PrivacyPage() {
           Privacidade e LGPD
         </h1>
         <p className="mt-3 text-xs text-muted">
-          Última atualização: 21 de novembro de 2026.
+          Última atualização: {site.lastUpdated}.
         </p>
 
         <div className="prose-legal mt-8">

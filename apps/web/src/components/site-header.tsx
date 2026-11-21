@@ -1,11 +1,7 @@
 import Link from "next/link";
 import { site } from "@/lib/site";
-import {
-  ArrowUpRightIcon,
-  BellIcon,
-  PlaneIcon,
-  TelegramIcon,
-} from "./icons";
+import { Brand } from "./brand";
+import { ArrowUpRightIcon, BellIcon, TelegramIcon } from "./icons";
 
 const links = [
   { href: "/ofertas", label: "Ofertas" },
@@ -18,14 +14,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-line/80 bg-cream/90 backdrop-blur">
       <div className="container-page flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-ink text-paper">
-            <PlaneIcon className="h-5 w-5 -rotate-12" />
-          </span>
-          <span className="font-display text-xl font-bold tracking-tight">
-            voa leve<span className="text-coral">.</span>
-          </span>
-        </Link>
+        <Brand />
 
         <nav className="hidden items-center gap-7 md:flex">
           {links.map((link) => (
