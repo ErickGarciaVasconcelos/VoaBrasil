@@ -29,6 +29,39 @@ export function buildAffiliateUrl(
   return url.toString();
 }
 
+/**
+ * Link de resultados do Aviasales (parceiro Travelpayouts).
+ * Formato documentado: ORIGEM + DDMM + DESTINO + DDMM +成年人.
+ * Ex.: GRU2612REC05011 = GRU → REC, 26/12 a 05/01, 1 adulto.
+ */
+export function aviasalesSearchUrl(
+  origin: string,
+  destination: string,
+  departureDate: string,
+  returnDate?: string | null,
+  options: AffiliateOptions = {},
+): string {
+  const datePart = (value: string): string => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    return match ? `${match[3]}${match[2]}` : "";
+  };
+  const code = (value: string): string =>
+    value.trim().toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3);
+
+  const originCode = code(origin);
+  const destinationCode = code(destination);
+  const depart = datePart(departureDate);
+  if (!originCode || !destinationCode || !depart) {
+    const home = "https://www.aviasales.com/";
+    return buildAffiliateUrl(home, options) ?? home;
+  }
+
+  const back = returnDate ? datePart(returnDate) : "";
+  const params = `${originCode}${depart}${destinationCode}${back}1`;
+  const url = `https://www.aviasales.com/search/${params}`;
+  return buildAffiliateUrl(url, options) ?? url;
+}
+
 export function appendSubId(
   link: string,
   subId: string,

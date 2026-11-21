@@ -1,3 +1,4 @@
+import { aviasalesSearchUrl } from "./affiliate";
 import type { PriceQuery, PriceSource, RawPrice } from "./types";
 
 export type MockRouteProfile = {
@@ -101,6 +102,7 @@ export class MockSource implements PriceSource {
   constructor(
     private readonly profiles: MockRouteProfile[],
     private readonly now: () => Date = () => new Date(),
+    private readonly marker = "",
   ) {}
 
   async search(query: PriceQuery): Promise<RawPrice[]> {
@@ -129,11 +131,12 @@ export class MockSource implements PriceSource {
         durationMinutes: profile.durationMinutes,
         bagsIncluded: hashString(departureDate) % 2 === 0,
         selfTransfer: false,
-        deepLink: googleFlightsLink(
+        deepLink: aviasalesSearchUrl(
           query.origin,
           query.destination,
           departureDate,
           returnDate,
+          { marker: this.marker },
         ),
         raw: { mock: true },
       } satisfies RawPrice;

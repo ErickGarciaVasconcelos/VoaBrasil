@@ -37,8 +37,8 @@ export type CollectResult = {
 };
 
 export function createPriceSource(sourceId = priceSourceId()): PriceSource {
+  const config = travelpayoutsConfig();
   if (sourceId === "travelpayouts") {
-    const config = travelpayoutsConfig();
     if (!config.token) {
       throw new Error(
         "TRAVELPAYOUTS_TOKEN não configurado. Use PRICE_SOURCE=mock para demonstração.",
@@ -52,7 +52,7 @@ export function createPriceSource(sourceId = priceSourceId()): PriceSource {
   }
 
   if (sourceId === "mock") {
-    return new MockSource(ROUTE_SEEDS);
+    return new MockSource(ROUTE_SEEDS, undefined, config.marker);
   }
 
   throw new Error(`Fonte de preço desconhecida: ${sourceId}`);

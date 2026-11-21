@@ -311,7 +311,8 @@ export default async function OfferPage({
             <a
               href={`/go/${offer.id}?c=site`}
               className="btn btn-primary mt-5 w-full"
-              rel="nofollow sponsored"
+              target="_blank"
+              rel="noopener noreferrer nofollow sponsored"
             >
               Ver preço atual
               <ArrowUpRightIcon className="h-4 w-4" />

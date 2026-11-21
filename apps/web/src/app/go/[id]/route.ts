@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { hashToken } from "@ppa/core";
-import { authSecret } from "@ppa/jobs";
+import { authSecret, travelpayoutsConfig } from "@ppa/jobs";
+import { aviasalesSearchUrl } from "@ppa/sources";
 import { getOfferForRedirect, trackClick } from "@/lib/queries";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const DEFAULT_AFFILIATE_HOSTS = [
-  "www.google.com",
   "www.aviasales.com",
   "aviasales.com",
   "www.travelpayouts.com",
@@ -91,8 +91,26 @@ export async function GET(
     console.error("[go] erro ao registrar clique:", error);
   }
 
+  // Ofertas antigas da demonstração apontavam para Google Flights. Elas são
+  // reescritas aqui para o results page do Aviasales sem precisar recriar o seed.
+  let storedLink = offer.deepLink;
+  try {
+    const host = new URL(storedLink ?? "").hostname.toLowerCase();
+    if (host === "www.google.com" || host === "google.com") {
+      storedLink = aviasalesSearchUrl(
+        offer.origin,
+        offer.destination,
+        offer.departureDate,
+        offer.returnDate,
+        { marker: travelpayoutsConfig().marker },
+      );
+    }
+  } catch {
+    // deep link inválido: cai no fallback de rota abaixo
+  }
+
   const destination =
-    safeDestination(offer.deepLink) ??
+    safeDestination(storedLink) ??
     new URL(
       `/passagens/${offer.origin}/${offer.destination}`,
       url.origin,

@@ -270,6 +270,7 @@ export default async function AdminOfferDetailPage({
             <Link
               href={`/go/${offer.id}?c=admin`}
               target="_blank"
+              rel="noopener noreferrer"
               className="mt-4 inline-flex text-xs font-bold text-coral underline underline-offset-4"
             >
               Testar redirecionamento rastreado →

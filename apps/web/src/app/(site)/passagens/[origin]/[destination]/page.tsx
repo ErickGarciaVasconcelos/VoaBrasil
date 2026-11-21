@@ -202,7 +202,8 @@ export default async function RoutePage({
               </p>
               <a
                 href={`/go/${best.id}?c=site`}
-                rel="nofollow sponsored"
+                target="_blank"
+                rel="noopener noreferrer nofollow sponsored"
                 className="btn btn-primary mt-4 w-full"
               >
                 Ver preço atual

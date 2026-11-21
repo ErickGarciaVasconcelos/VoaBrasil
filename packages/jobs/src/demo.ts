@@ -14,11 +14,12 @@ import {
   runMigrations,
 } from "@ppa/db";
 import { dateOnly } from "@ppa/core";
-import { mockPriceCents } from "@ppa/sources";
+import { aviasalesSearchUrl, mockPriceCents } from "@ppa/sources";
 import { refreshBucketStats } from "./stats";
 import { detectDeals } from "./detect";
 import { publishOffer } from "./publish";
 import { dispatchNotifications } from "./notify";
+import { travelpayoutsConfig } from "./config";
 import { chunk, logJob } from "./utils";
 
 export type SeedDemoOptions = {
@@ -53,8 +54,13 @@ function demoLink(
   departureDate: string,
   returnDate: string,
 ): string {
-  const query = `Flights from ${origin} to ${destination} on ${departureDate} returning ${returnDate}`;
-  return `https://www.google.com/travel/flights?q=${encodeURIComponent(query)}`;
+  return aviasalesSearchUrl(
+    origin,
+    destination,
+    departureDate,
+    returnDate,
+    { marker: travelpayoutsConfig().marker },
+  );
 }
 
 /**

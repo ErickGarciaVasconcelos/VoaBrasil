@@ -640,6 +640,8 @@ export async function getOfferForRedirect(id: string) {
       status: offers.status,
       expiresAt: offers.expiresAt,
       deepLink: offers.deepLink,
+      departureDate: offers.departureDate,
+      returnDate: offers.returnDate,
       origin: routes.origin,
       destination: routes.destination,
     })
