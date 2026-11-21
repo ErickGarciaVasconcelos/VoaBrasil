@@ -13,6 +13,7 @@ const legal = [
   { href: "/termos", label: "Termos de uso" },
   { href: "/privacidade", label: "Privacidade e LGPD" },
   { href: "/divulgacao-afiliado", label: "Divulgação de afiliado" },
+  { href: "/creditos-imagens", label: "Créditos das imagens" },
 ];
 
 export function SiteFooter() {

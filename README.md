@@ -62,7 +62,18 @@ O comando `npm run demo`:
 Para recriar a demonstração apagando ofertas, cliques e snapshots:
 
 ```bash
-npm run demo -- --reset
+npm run demo --workspace @ppa/worker -- --reset
+```
+
+### Imagens dos destinos
+
+As fotos são baixadas da Wikimedia Commons e versionadas em
+`apps/web/public/destinations`. Autoria e licença ficam no índice gerado
+`apps/web/src/lib/destination-images.generated.ts` e são exibidas em
+`/creditos-imagens`. Para atualizar as imagens e os créditos:
+
+```bash
+npm run images:fetch
 ```
 
 ### Painel admin

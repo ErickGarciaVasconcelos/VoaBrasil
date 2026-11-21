@@ -19,6 +19,7 @@
     "db:generate": "npm run generate --workspace @ppa/db",
     "db:migrate": "npm run migrate --workspace @ppa/db",
     "demo": "npm run demo --workspace apps/worker",
+    "images:fetch": "tsx apps/web/scripts/fetch-destination-images.ts",
     "test": "npm run test --workspace @ppa/core",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },

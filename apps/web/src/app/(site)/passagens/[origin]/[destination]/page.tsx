@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AIRPORTS } from "@ppa/db";
 import { AlertForm } from "@/components/alert-form";
+import { DestinationImage } from "@/components/destination-image";
 import { EmptyState } from "@/components/empty-state";
 import {
   ArrowUpRightIcon,
@@ -177,6 +178,12 @@ export default async function RoutePage({
             ) : null}
           </div>
         </div>
+
+        <DestinationImage
+          iata={route.destination.iata}
+          city={route.destination.city}
+          className="mb-4"
+        />
 
         <div className="card p-6">
           {best ? (

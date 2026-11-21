@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AIRPORTS } from "@ppa/db";
 import { AlertForm } from "@/components/alert-form";
 import { DemoNotice } from "@/components/demo-notice";
+import { DestinationImage } from "@/components/destination-image";
 import { EmptyState } from "@/components/empty-state";
 import { HeroTicket } from "@/components/hero-ticket";
 import {
@@ -65,9 +66,12 @@ function RouteRow({ route }: { route: RouteView }) {
       className="group flex items-center justify-between gap-4 rounded-2xl border border-line bg-paper px-4 py-3.5 transition duration-200 hover:-translate-y-0.5 hover:border-ink/20 hover:shadow-md"
     >
       <div className="flex min-w-0 items-center gap-3">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-cream font-display text-[11px] font-bold">
-          {route.origin.iata}
-        </span>
+        <DestinationImage
+          iata={route.destination.iata}
+          city={route.destination.city}
+          compact
+          className="h-10 w-10"
+        />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">
             {route.origin.city} → {route.destination.city}

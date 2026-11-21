@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AIRPORTS } from "@ppa/db";
 import { AlertForm } from "@/components/alert-form";
+import { DestinationImage } from "@/components/destination-image";
 import {
   ArrowUpRightIcon,
   BaggageIcon,
@@ -293,7 +294,12 @@ export default async function OfferPage({
         </div>
 
         <aside className="lg:sticky lg:top-24">
-          <div className="card p-6">
+          <DestinationImage
+            iata={offer.destination.iata}
+            city={offer.destination.city}
+            priority
+          />
+          <div className="card mt-4 p-6">
             <p className="eyebrow">Verificar disponibilidade</p>
             <p className="mt-2 font-display text-4xl font-extrabold">
               {formatBRL(offer.priceCents)}
