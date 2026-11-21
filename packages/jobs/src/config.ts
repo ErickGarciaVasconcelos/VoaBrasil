@@ -26,8 +26,17 @@ export function siteUrl(): string {
   return (process.env.SITE_URL ?? "http://localhost:3000").replace(/\/+$/, "");
 }
 
+const DEV_AUTH_SECRET = "dev-secret-change-me";
+
 export function authSecret(): string {
-  return process.env.AUTH_SECRET ?? "dev-secret-change-me";
+  const value = process.env.AUTH_SECRET?.trim() ?? "";
+  if (isProduction()) {
+    if (!value || value === DEV_AUTH_SECRET) {
+      throw new Error("AUTH_SECRET ausente ou inválido em produção.");
+    }
+    return value;
+  }
+  return value || DEV_AUTH_SECRET;
 }
 
 export function emailFrom(): string {

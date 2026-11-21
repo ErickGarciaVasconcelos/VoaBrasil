@@ -10,12 +10,27 @@ const globalStore = globalThis as typeof globalThis & {
 const buckets = globalStore.__ppaRateLimit ?? new Map<string, Bucket>();
 globalStore.__ppaRateLimit = buckets;
 
+const MAX_KEYS = 5_000;
+
+function prune(now: number): void {
+  if (buckets.size <= MAX_KEYS) return;
+  for (const [key, bucket] of buckets) {
+    if (bucket.resetAt <= now) buckets.delete(key);
+  }
+  while (buckets.size > MAX_KEYS) {
+    const oldest = buckets.keys().next().value;
+    if (!oldest) break;
+    buckets.delete(oldest);
+  }
+}
+
 export function rateLimit(
   key: string,
   limit = 5,
   windowMs = 60_000,
 ): { ok: boolean; remaining: number } {
   const now = Date.now();
+  prune(now);
   const bucket = buckets.get(key);
 
   if (!bucket || bucket.resetAt <= now) {

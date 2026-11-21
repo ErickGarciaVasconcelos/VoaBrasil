@@ -24,6 +24,25 @@ export function usingPglite(): boolean {
   return !process.env.DATABASE_URL?.trim();
 }
 
+/**
+ * PGlite é adequado apenas para desenvolvimento/demonstração: ele grava em um
+ * diretório local por processo. Em produção, a ausência de DATABASE_URL
+ * silenciosamente criaria bancos diferentes por instância.
+ */
+function assertDatabaseConfig(): void {
+  if (
+    process.env.NODE_ENV === "production" &&
+    usingPglite() &&
+    process.env.NEXT_PHASE !== "phase-production-build" &&
+    process.env.ALLOW_PGLITE_IN_PRODUCTION !== "1"
+  ) {
+    throw new Error(
+      "DATABASE_URL é obrigatório em produção. ALLOW_PGLITE_IN_PRODUCTION=1 " +
+        "libera PGlite apenas para testes locais em modo produção.",
+    );
+  }
+}
+
 export function getPgliteDataDir(): string {
   const configured = process.env.PGLITE_DATA_DIR?.trim();
   if (configured) return path.resolve(configured);
@@ -54,6 +73,7 @@ export function getPgliteDataDir(): string {
 }
 
 async function createDatabase(): Promise<Database> {
+  assertDatabaseConfig();
   const url = process.env.DATABASE_URL?.trim();
 
   if (url) {

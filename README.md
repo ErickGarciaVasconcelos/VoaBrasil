@@ -107,6 +107,8 @@ Todas estão documentadas em `.env.example`. As principais:
 | `PRICE_SOURCE` | `mock` | `mock` ou `travelpayouts` |
 | `RESEND_API_KEY` | — | sem chave, e-mails são simulados |
 | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHANNEL_ID` | — | sem ambos, não há broadcast |
+| `ALLOWED_AFFILIATE_HOSTS` | hosts padrão | allowlist dos destinos aceitos em `/go/:id` |
+| `ALLOW_PGLITE_IN_PRODUCTION` | — | `1` libera PGlite só para teste local em modo produção |
 
 ## Como a detecção funciona
 
@@ -195,9 +197,9 @@ Ao definir esses pontos, ajuste `packages/db/src/seed-data.ts` (rotas e tetos),
 
 ## Checklist para produção
 
-- [ ] Criar Postgres gerenciado e definir `DATABASE_URL`.
+- [ ] Criar Postgres gerenciado e definir `DATABASE_URL` (obrigatório em produção).
 - [ ] Rodar `npm run db:migrate` no banco de produção.
-- [ ] Definir `AUTH_SECRET` longo e `ADMIN_PASSWORD` forte.
+- [ ] Definir `AUTH_SECRET` longo (obrigatório) e `ADMIN_PASSWORD` forte.
 - [ ] Configurar `SITE_URL` com o domínio final e HTTPS.
 - [ ] Verificar domínio no Resend e configurar `EMAIL_FROM`.
 - [ ] Criar bot no Telegram, adicionar ao canal e definir token/channel ID.

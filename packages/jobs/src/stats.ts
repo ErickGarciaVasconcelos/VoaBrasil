@@ -105,10 +105,12 @@ export async function refreshBucketStats(
     });
   }
 
-  await db.delete(bucketStats).where(eq(bucketStats.asOfDate, asOfDate));
-  for (const batch of chunk(values, 300)) {
-    await db.insert(bucketStats).values(batch);
-  }
+  await db.transaction(async (tx) => {
+    await tx.delete(bucketStats).where(eq(bucketStats.asOfDate, asOfDate));
+    for (const batch of chunk(values, 300)) {
+      await tx.insert(bucketStats).values(batch);
+    }
+  });
 
   const result: RefreshStatsResult = {
     asOf: asOfDate,

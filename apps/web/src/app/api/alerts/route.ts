@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { alertRules, getDb, subscribers } from "@ppa/db";
+import { airports, alertRules, getDb, subscribers } from "@ppa/db";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { sendConfirmationEmail, unsubscribeUrl } from "@/lib/subscribers";
 
@@ -9,6 +9,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+function isRealDate(value: string): boolean {
+  if (!datePattern.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return (
+    !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
+  );
+}
 
 const alertSchema = z.object({
   email: z
@@ -35,12 +43,12 @@ const alertSchema = z.object({
   maxPrice: z.number().positive().max(10_000_000).nullable().optional(),
   departFrom: z
     .string()
-    .regex(datePattern, "Data inicial inválida.")
+    .refine(isRealDate, "Data inicial inválida.")
     .nullable()
     .optional(),
   departTo: z
     .string()
-    .regex(datePattern, "Data final inválida.")
+    .refine(isRealDate, "Data final inválida.")
     .nullable()
     .optional(),
   consent: z.literal(true, {
@@ -109,6 +117,28 @@ export async function POST(request: Request) {
 
   try {
     const db = await getDb();
+
+    const airportCodes = [
+      ...new Set([origin, destination].filter((code): code is string => !!code)),
+    ];
+    if (airportCodes.length > 0) {
+      const known = await db
+        .select({ iata: airports.iata })
+        .from(airports)
+        .where(inArray(airports.iata, airportCodes));
+      const knownSet = new Set(known.map((row) => row.iata));
+      const unknown = airportCodes.filter((code) => !knownSet.has(code));
+      if (unknown.length > 0) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: `Aeroporto não suportado: ${unknown.join(", ")}.`,
+          },
+          { status: 400 },
+        );
+      }
+    }
+
     const now = new Date();
     const [existing] = await db
       .select()

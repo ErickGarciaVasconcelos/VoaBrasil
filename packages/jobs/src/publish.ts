@@ -1,4 +1,4 @@
-import { and, eq, gte, isNull, lte, or, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import {
   alertRules,
@@ -167,12 +167,18 @@ export async function publishOffer(
     };
   }
 
+  if (row.offer.status === "rejected" || row.offer.status === "expired") {
+    throw new Error(
+      `Oferta ${row.offer.status} precisa ser reaberta antes de publicar.`,
+    );
+  }
+
   const now = new Date();
   const expiresAt = new Date(
     now.getTime() + TTL_HOURS[row.offer.level] * 3_600_000,
   );
 
-  await db
+  const published = await db
     .update(offers)
     .set({
       status: "published",
@@ -180,7 +186,23 @@ export async function publishOffer(
       expiresAt,
       updatedAt: now,
     })
-    .where(eq(offers.id, offerId));
+    .where(
+      and(
+        eq(offers.id, offerId),
+        inArray(offers.status, ["draft", "approved"]),
+      ),
+    )
+    .returning({ id: offers.id });
+
+  if (published.length === 0) {
+    const current = await getOfferWithRoute(offerId);
+    return {
+      offerId,
+      status: current?.offer.status ?? "draft",
+      notifications: 0,
+      expiresAt: current?.offer.expiresAt ?? null,
+    };
+  }
 
   await db.insert(offerEvents).values({
     offerId,

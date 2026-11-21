@@ -275,6 +275,12 @@ export async function detectDeals(
     };
 
     if (existing) {
+      // Rejeição manual é definitiva até o administrador reabrir a oferta.
+      if (existing.status === "rejected") {
+        skipped += 1;
+        continue;
+      }
+
       if (existing.priceCents <= best.priceCents * 0.98) {
         skipped += 1;
         continue;

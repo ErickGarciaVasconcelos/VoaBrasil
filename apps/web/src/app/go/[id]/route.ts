@@ -2,16 +2,36 @@ import { NextResponse } from "next/server";
 import { hashToken } from "@ppa/core";
 import { authSecret } from "@ppa/jobs";
 import { getOfferForRedirect, trackClick } from "@/lib/queries";
-import { site } from "@/lib/site";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const DEFAULT_AFFILIATE_HOSTS = [
+  "www.google.com",
+  "www.aviasales.com",
+  "aviasales.com",
+  "www.travelpayouts.com",
+  "travelpayouts.com",
+  "www.kiwi.com",
+  "kiwi.com",
+];
+
+function allowedAffiliateHosts(): Set<string> {
+  const configured = process.env.ALLOWED_AFFILIATE_HOSTS?.split(",")
+    .map((host) => host.trim().toLowerCase())
+    .filter(Boolean);
+  return new Set(configured?.length ? configured : DEFAULT_AFFILIATE_HOSTS);
+}
+
 function safeDestination(value: string | null): string | null {
   if (!value) return null;
   try {
-    const url = new URL(value, site.url);
+    // URL absoluta: links relativos/protocol-relative (//evil.com) não são
+    // aceitos como destino de afiliado.
+    const url = new URL(value);
     if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    if (url.username || url.password) return null;
+    if (!allowedAffiliateHosts().has(url.hostname.toLowerCase())) return null;
     return url.toString();
   } catch {
     return null;

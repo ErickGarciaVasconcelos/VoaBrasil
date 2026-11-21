@@ -26,6 +26,7 @@ export type DealLevelDb = "good" | "great" | "error";
 export type SubscriberStatus = "pending" | "confirmed" | "unsubscribed";
 export type NotificationStatus =
   | "pending"
+  | "processing"
   | "sent"
   | "failed"
   | "skipped";
@@ -302,6 +303,7 @@ export const notifications = pgTable(
       .notNull()
       .default("pending"),
     attempts: integer("attempts").notNull().default(0),
+    claimedAt: timestamp("claimed_at", { withTimezone: true }),
     scheduledFor: timestamp("scheduled_for", { withTimezone: true })
       .notNull()
       .defaultNow(),

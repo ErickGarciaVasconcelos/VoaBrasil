@@ -1,16 +1,13 @@
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { authSecret } from "@ppa/jobs";
 
 const COOKIE_NAME = "ppa_admin";
 const SESSION_SECONDS = 7 * 24 * 60 * 60;
 
-function secret(): string {
-  return process.env.AUTH_SECRET?.trim() || "dev-secret-change-me";
-}
-
 function sign(value: string): string {
-  return createHmac("sha256", secret()).update(value).digest("base64url");
+  return createHmac("sha256", authSecret()).update(value).digest("base64url");
 }
 
 function safeEqual(a: string, b: string): boolean {

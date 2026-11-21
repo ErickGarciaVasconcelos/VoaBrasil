@@ -1,5 +1,5 @@
-import { and, eq, lte } from "drizzle-orm";
-import { getDb, notifications, offers } from "@ppa/db";
+import { and, eq, inArray, lte, sql } from "drizzle-orm";
+import { getDb, notifications, offers, subscribers } from "@ppa/db";
 import { signToken } from "@ppa/core";
 import {
   authSecret,
@@ -226,17 +226,43 @@ export async function dispatchNotifications(options: {
   const now = options.now ?? new Date();
   const limit = options.limit ?? 50;
 
-  const pending = await db
-    .select()
-    .from(notifications)
+  // Recupera itens cujo processo morreu depois de adquirir o claim.
+  await db
+    .update(notifications)
+    .set({ status: "pending", claimedAt: null, error: null })
     .where(
       and(
-        eq(notifications.status, "pending"),
-        lte(notifications.scheduledFor, now),
+        eq(notifications.status, "processing"),
+        lte(notifications.claimedAt, new Date(now.getTime() - 15 * 60_000)),
+      ),
+    );
+
+  // Claim atômico: duas execuções concorrentes nunca enviam o mesmo item.
+  const pending = await db
+    .update(notifications)
+    .set({
+      status: "processing",
+      attempts: sql`${notifications.attempts} + 1`,
+      claimedAt: now,
+      error: null,
+    })
+    .where(
+      inArray(
+        notifications.id,
+        db
+          .select({ id: notifications.id })
+          .from(notifications)
+          .where(
+            and(
+              eq(notifications.status, "pending"),
+              lte(notifications.scheduledFor, now),
+            ),
+          )
+          .orderBy(notifications.scheduledFor)
+          .limit(limit),
       ),
     )
-    .orderBy(notifications.scheduledFor)
-    .limit(limit);
+    .returning();
 
   const cache = new Map<string, OfferWithRoute | null>();
   let sent = 0;
@@ -250,19 +276,54 @@ export async function dispatchNotifications(options: {
       cache.set(item.offerId, row);
     }
 
-    const attempts = item.attempts + 1;
-
     if (!row) {
       await db
         .update(notifications)
         .set({
           status: "failed",
-          attempts,
+          attempts: item.attempts,
           error: "Oferta não encontrada",
         })
         .where(eq(notifications.id, item.id));
       failed += 1;
       continue;
+    }
+
+    const offer = row.offer;
+    if (
+      offer.status !== "published" ||
+      (offer.expiresAt != null && offer.expiresAt.getTime() <= now.getTime())
+    ) {
+      await db
+        .update(notifications)
+        .set({
+          status: "skipped",
+          attempts: item.attempts,
+          error: "Oferta não está mais publicada.",
+        })
+        .where(eq(notifications.id, item.id));
+      skipped += 1;
+      continue;
+    }
+
+    if (item.channel === "email" && item.subscriberId) {
+      const [subscriber] = await db
+        .select({ status: subscribers.status })
+        .from(subscribers)
+        .where(eq(subscribers.id, item.subscriberId))
+        .limit(1);
+      if (subscriber?.status !== "confirmed") {
+        await db
+          .update(notifications)
+          .set({
+            status: "skipped",
+            attempts: item.attempts,
+            error: "Assinante não está confirmado.",
+          })
+          .where(eq(notifications.id, item.id));
+        skipped += 1;
+        continue;
+      }
     }
 
     try {
@@ -278,7 +339,7 @@ export async function dispatchNotifications(options: {
           .update(notifications)
           .set({
             status: "sent",
-            attempts,
+            attempts: item.attempts,
             sentAt: now,
             error: null,
           })
@@ -293,7 +354,7 @@ export async function dispatchNotifications(options: {
             .update(notifications)
             .set({
               status: "failed",
-              attempts,
+              attempts: item.attempts,
               error: "Assinante ausente",
             })
             .where(eq(notifications.id, item.id));
@@ -317,7 +378,7 @@ export async function dispatchNotifications(options: {
           .update(notifications)
           .set({
             status: result.simulated ? "skipped" : "sent",
-            attempts,
+            attempts: item.attempts,
             sentAt: result.simulated ? null : now,
             error: result.simulated
               ? "RESEND_API_KEY não configurado (envio simulado)"
@@ -333,7 +394,7 @@ export async function dispatchNotifications(options: {
         .update(notifications)
         .set({
           status: "skipped",
-          attempts,
+          attempts: item.attempts,
           error: `Canal desconhecido: ${item.channel}`,
         })
         .where(eq(notifications.id, item.id));
@@ -343,8 +404,9 @@ export async function dispatchNotifications(options: {
       await db
         .update(notifications)
         .set({
-          status: attempts >= 3 ? "failed" : "pending",
-          attempts,
+          status: item.attempts >= 3 ? "failed" : "pending",
+          attempts: item.attempts,
+          claimedAt: null,
           error: message.slice(0, 500),
         })
         .where(eq(notifications.id, item.id));
