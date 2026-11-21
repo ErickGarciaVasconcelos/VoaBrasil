@@ -1,0 +1,23 @@
+{
+  "name": "@ppa/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "demo": "tsx src/demo-cli.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ppa/core": "*",
+    "@ppa/db": "*",
+    "@ppa/jobs": "*",
+    "@ppa/sources": "*",
+    "croner": "^11.0.1",
+    "dotenv": "^18.0.10"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15"
+  }
+}

@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-display: var(--font-bricolage), var(--font-inter), ui-sans-serif,
+    system-ui, sans-serif;
+
+  --color-cream: #f7f2e8;
+  --color-paper: #fffdf8;
+  --color-ink: #0b1b2b;
+  --color-ink-soft: #33475b;
+  --color-muted: #6b7a89;
+  --color-teal: #0f766e;
+  --color-teal-soft: #d7f0ea;
+  --color-coral: #ff5a36;
+  --color-coral-soft: #ffe3da;
+  --color-sun: #f5b82e;
+  --color-line: #e4dccd;
+  --color-good: #1f7a4d;
+  --color-good-soft: #dcf5e7;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background: var(--color-sun);
+    color: var(--color-ink);
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition duration-200 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply bg-coral text-paper hover:-translate-y-0.5 hover:bg-[#e94b29] hover:shadow-lg hover:shadow-coral/20;
+  }
+
+  .btn-ink {
+    @apply bg-ink text-paper hover:-translate-y-0.5 hover:bg-[#16293d] hover:shadow-lg hover:shadow-ink/15;
+  }
+
+  .btn-outline {
+    @apply border border-ink/20 text-ink hover:border-ink/40 hover:bg-ink/5;
+  }
+
+  .btn-ghost {
+    @apply text-ink hover:bg-ink/5;
+  }
+
+  .card {
+    @apply rounded-3xl border border-line bg-paper;
+  }
+
+  .eyebrow {
+    @apply text-[11px] font-bold uppercase tracking-[0.18em] text-teal;
+  }
+
+  .field {
+    @apply w-full rounded-xl border border-line bg-paper px-4 py-3 text-sm text-ink outline-none transition placeholder:text-muted/70 focus:border-teal focus:ring-2 focus:ring-teal/20;
+  }
+
+  .label {
+    @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-ink-soft;
+  }
+
+  .prose-legal h2 {
+    @apply mt-10 mb-3 font-display text-2xl font-bold;
+  }
+
+  .prose-legal h3 {
+    @apply mt-6 mb-2 font-display text-lg font-bold;
+  }
+
+  .prose-legal p {
+    @apply mb-4 text-[15px] leading-7 text-ink-soft;
+  }
+
+  .prose-legal ul {
+    @apply mb-4 list-disc space-y-2 pl-5 text-[15px] leading-7 text-ink-soft;
+  }
+
+  .prose-legal a {
+    @apply font-semibold text-teal underline decoration-teal/30 underline-offset-4;
+  }
+}
+
+.grain {
+  background-image: radial-gradient(
+      circle at 15% 20%,
+      rgba(245, 184, 46, 0.18),
+      transparent 28%
+    ),
+    radial-gradient(circle at 85% 10%, rgba(15, 118, 110, 0.12), transparent 26%),
+    radial-gradient(circle at 60% 85%, rgba(255, 90, 54, 0.1), transparent 30%);
+}
+
+.ticket-notch {
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  background: var(--color-cream);
+  border: 1px solid var(--color-line);
+}
+
+.ticket-notch-left {
+  left: -10px;
+}
+
+.ticket-notch-right {
+  right: -10px;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up {
+    animation: none;
+  }
+}
